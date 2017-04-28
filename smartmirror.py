@@ -1,7 +1,7 @@
 # smartmirror.py
 # requirements
 # requests, feedparser, traceback, Pillow
-
+# from __future__ import print_function
 from Tkinter import *
 import locale
 import threading
@@ -10,25 +10,46 @@ import requests
 import json
 import traceback
 import feedparser
+import sys
+import random
 
+# import httplib2
+# import os
+# from apiclient import discovery
+# from oauth2client import client
+# from oauth2client import tools
+# from oauth2client.file import Storage
+# import datetime
 from PIL import Image, ImageTk
 from contextlib import contextmanager
 
 LOCALE_LOCK = threading.Lock()
 
-ui_locale = '' # e.g. 'fr_FR' fro French, '' as default
-time_format = 24 # 12 or 24
-date_format = "%b %d, %Y" # check python doc for strftime() for options
-news_country_code = 'en_ke'
-weather_api_token = '0983da221203e410a48d560ade67643d' # create account at https://darksky.net/dev/
-weather_lang = 'en' # see https://darksky.net/dev/docs/forecast for full list of language parameters values
-weather_unit = 'us' # see https://darksky.net/dev/docs/forecast for full list of unit parameters values
-latitude = None # Set this if IP location lookup does not work for you (must be a string)
-longitude = None # Set this if IP location lookup does not work for you (must be a string)
-xlarge_text_size = 94
-large_text_size = 48
-medium_text_size = 28
-small_text_size = 18
+# ui_locale = '' # e.g. 'fr_FR' fro French, '' as default
+# time_format = 24 # 12 or 24
+# date_format = "%b %d, %Y" # check python doc for strftime() for options
+# news_country_code = 'en_'
+# weather_api_token = '0983da221203e410a48d560ade67643d' # create account at https://darksky.net/dev/
+# weather_lang = 'en' # see https://darksky.net/dev/docs/forecast for full list of language parameters values
+# weather_unit = 'us' # see https://darksky.net/dev/docs/forecast for full list of unit parameters values
+# latitude = None # Set this if IP location lookup does not work for you (must be a string)
+# longitude = None # Set this if IP location lookup does not work for you (must be a string)
+xlarge_text_size = 74
+large_text_size = 38
+medium_text_size = 18
+small_text_size = 15
+with open("parameters.txt", "r") as text_file:
+     parameters = text_file.read().splitlines()
+ui_locale = parameters[0]
+time_format = parameters[1]
+date_format = parameters[2]
+news_country_code = parameters[3]
+weather_api_token = parameters[4]
+weather_lang = parameters[5]
+weather_unit = parameters[6]
+latitude = parameters[7]
+longitude = parameters[8]
+
 
 @contextmanager
 def setlocale(name): #thread proof function to work with locale
@@ -121,6 +142,7 @@ class Weather(Frame):
         self.locationLbl = Label(self, font=('Helvetica', small_text_size), fg="white", bg="black")
         self.locationLbl.pack(side=TOP, anchor=W)
         self.get_weather()
+        # self.convert_kelvin_to_fahrenheit()
 
     def get_ip(self):
         try:
@@ -157,7 +179,7 @@ class Weather(Frame):
             weather_obj = json.loads(r.text)
 
             degree_sign= u'\N{DEGREE SIGN}'
-            temperature2 = "%s%s" % (str(int(weather_obj['currently']['temperature'])), degree_sign)
+            temperature2 = "%s%s" % (str(convert_kelvin_to_fahrenheit((int(weather_obj['currently']['temperature'])))), degree_sign)
             currently2 = weather_obj['currently']['summary']
             forecast2 = weather_obj["hourly"]["summary"]
 
@@ -203,9 +225,11 @@ class Weather(Frame):
 
         self.after(600000, self.get_weather)
 
-    @staticmethod
-    def convert_kelvin_to_fahrenheit(kelvin_temp):
-        return 1.8 * (kelvin_temp - 273) + 32
+    # @staticmethod
+def convert_kelvin_to_fahrenheit(kelvin_temp):
+    return  (kelvin_temp - 32)* 5/9
+
+
 
 
 class News(Frame):
@@ -225,9 +249,9 @@ class News(Frame):
             for widget in self.headlinesContainer.winfo_children():
                 widget.destroy()
             if news_country_code == None:
-                headlines_url = "https://news.google.com/news?ned=en_ke&output=rss"
+                headlines_url = "https://news.google.com/news?cf=all&hl=en&ned=en_ke&topic=tc&output=rss"
             else:
-                headlines_url = "https://news.google.com/news?ned=%s&output=rss" % news_country_code
+                headlines_url = "https://news.google.com/news?cf=all&hl=en&ned=%s&topic=tc&output=rss" % news_country_code
 
             feed = feedparser.parse(headlines_url)
 
@@ -238,7 +262,7 @@ class News(Frame):
             traceback.print_exc()
             print "Error: %s. Cannot get news." % e
 
-        self.after(600000, self.get_headlines)
+        self.after(50000, self.get_headlines)
 
 
 class NewsHeadline(Frame):
@@ -273,13 +297,14 @@ class Calendar(Frame):
         #TODO: implement this method
         # reference https://developers.google.com/google-apps/calendar/quickstart/python
 
+
+
         # remove all children
         for widget in self.calendarEventContainer.winfo_children():
             widget.destroy()
 
-        calendar_event = CalendarEvent(self.calendarEventContainer)
-        calendar_event.pack(side=TOP, anchor=E)
-        pass
+            calendar_event = CalendarEvent(self.calendarEventContainer)
+            calendar_event.pack(side=TOP, anchor=E)
 
 
 class CalendarEvent(Frame):
@@ -312,12 +337,14 @@ class FullscreenWindow:
         self.news = News(self.bottomFrame)
         self.news.pack(side=LEFT, anchor=S, padx=100, pady=60)
         # calender - removing for now
-        # self.calender = Calendar(self.bottomFrame)
-        # self.calender.pack(side = RIGHT, anchor=S, padx=100, pady=60)
+        #self.calender = Calendar(self.bottomFrame)
+        #self.calender.pack(side = RIGHT, anchor=S, padx=100, pady=60)
+        # self.overideredirect(True)
+        # self.tk.attributes("-fullscreen", True)
 
     def toggle_fullscreen(self, event=None):
         self.state = not self.state  # Just toggling the boolean
-        self.tk.attributes("-fullscreen", self.state)
+        self.tk.attributes("-fullscreen", True)
         return "break"
 
     def end_fullscreen(self, event=None):
