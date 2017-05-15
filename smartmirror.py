@@ -13,27 +13,12 @@ import feedparser
 import sys
 import random
 
-# import httplib2
-# import os
-# from apiclient import discovery
-# from oauth2client import client
-# from oauth2client import tools
-# from oauth2client.file import Storage
-# import datetime
+
 from PIL import Image, ImageTk
 from contextlib import contextmanager
 
 LOCALE_LOCK = threading.Lock()
 
-# ui_locale = '' # e.g. 'fr_FR' fro French, '' as default
-# time_format = 24 # 12 or 24
-# date_format = "%b %d, %Y" # check python doc for strftime() for options
-# news_country_code = 'en_'
-# weather_api_token = '0983da221203e410a48d560ade67643d' # create account at https://darksky.net/dev/
-# weather_lang = 'en' # see https://darksky.net/dev/docs/forecast for full list of language parameters values
-# weather_unit = 'us' # see https://darksky.net/dev/docs/forecast for full list of unit parameters values
-# latitude = None # Set this if IP location lookup does not work for you (must be a string)
-# longitude = None # Set this if IP location lookup does not work for you (must be a string)
 xlarge_text_size = 74
 large_text_size = 38
 medium_text_size = 18
@@ -295,9 +280,7 @@ class Calendar(Frame):
 
     def get_events(self):
         #TODO: implement this method
-        # reference https://developers.google.com/google-apps/calendar/quickstart/python
-
-
+        
 
         # remove all children
         for widget in self.calendarEventContainer.winfo_children():
