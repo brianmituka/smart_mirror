@@ -1,7 +1,3 @@
-# smartmirror.py
-# requirements
-# requests, feedparser, traceback, Pillow
-# from __future__ import print_function
 from Tkinter import *
 import locale
 import threading
@@ -10,8 +6,6 @@ import requests
 import json
 import traceback
 import feedparser
-import sys
-import random
 
 
 from PIL import Image, ImageTk
@@ -37,7 +31,7 @@ longitude = parameters[8]
 
 
 @contextmanager
-def setlocale(name): #thread proof function to work with locale
+def setlocale(name):
     with LOCALE_LOCK:
         saved = locale.setlocale(locale.LC_ALL)
         try:
@@ -45,8 +39,7 @@ def setlocale(name): #thread proof function to work with locale
         finally:
             locale.setlocale(locale.LC_ALL, saved)
 
-# maps open weather icons to
-# icon reading is not impacted by the 'lang' parameter
+
 icon_lookup = {
     'clear-day': "assets/Sun.png",  # clear sky day
     'wind': "assets/Wind.png",   #wind
@@ -127,7 +120,6 @@ class Weather(Frame):
         self.locationLbl = Label(self, font=('Helvetica', small_text_size), fg="white", bg="black")
         self.locationLbl.pack(side=TOP, anchor=W)
         self.get_weather()
-        # self.convert_kelvin_to_fahrenheit()
 
     def get_ip(self):
         try:
@@ -210,11 +202,9 @@ class Weather(Frame):
 
         self.after(600000, self.get_weather)
 
-    # @staticmethod
+
 def convert_kelvin_to_fahrenheit(kelvin_temp):
     return  (kelvin_temp - 32)* 5/9
-
-
 
 
 class News(Frame):
@@ -319,21 +309,17 @@ class FullscreenWindow:
         # news
         self.news = News(self.bottomFrame)
         self.news.pack(side=LEFT, anchor=S, padx=100, pady=60)
-        # calender - removing for now
-        #self.calender = Calendar(self.bottomFrame)
-        #self.calender.pack(side = RIGHT, anchor=S, padx=100, pady=60)
-        # self.overideredirect(True)
-        # self.tk.attributes("-fullscreen", True)
 
     def toggle_fullscreen(self, event=None):
         self.state = not self.state  # Just toggling the boolean
         self.tk.attributes("-fullscreen", True)
         return "break"
 
-    def end_fullscreen(self, event=None):
+    def end_fullscreen(self):
         self.state = False
         self.tk.attributes("-fullscreen", False)
         return "break"
+
 
 if __name__ == '__main__':
     w = FullscreenWindow()
